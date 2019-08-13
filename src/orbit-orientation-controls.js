@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import {Vector3} from 'three';
 import OrbitControls from 'three/examples/js/controls/OrbitControls.js';
 import DeviceOrientationControls from 'three/examples/js/controls/DeviceOrientationControls.js';
 
@@ -17,7 +17,7 @@ function Quat2Angle(x, y, z, w) {
     const pitch = Math.PI / 2;
     const roll = 0;
 
-    return new THREE.Vector3(pitch, roll, yaw);
+    return new Vector3(pitch, roll, yaw);
   }
 
   // singularity at south pole
@@ -26,7 +26,7 @@ function Quat2Angle(x, y, z, w) {
     const pitch = -Math.PI / 2;
     const roll = 0;
 
-    return new THREE.Vector3(pitch, roll, yaw);
+    return new Vector3(pitch, roll, yaw);
   }
 
   const sqx = x * x;
@@ -36,7 +36,7 @@ function Quat2Angle(x, y, z, w) {
   const pitch = Math.asin(2 * test);
   const roll = Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz);
 
-  return new THREE.Vector3(pitch, roll, yaw);
+  return new Vector3(pitch, roll, yaw);
 }
 
 class OrbitOrientationControls {

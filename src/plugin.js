@@ -3,7 +3,23 @@ import window from 'global/window';
 import document from 'global/document';
 import WebVRPolyfill from 'webvr-polyfill';
 import videojs from 'video.js';
-import * as THREE from 'three';
+import {
+  BoxGeometry,
+  BufferGeometry,
+  LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  RGBFormat,
+  Scene,
+  SphereBufferGeometry,
+  SphereGeometry,
+  Vector2,
+  Vector3,
+  VideoTexture,
+  WebGLRenderer,
+  BackSide
+} from 'three';
 import VRControls from 'three/examples/js/controls/VRControls.js';
 import VREffect from 'three/examples/js/effects/VREffect.js';
 import OrbitOrientationContols from './orbit-orientation-controls.js';
@@ -124,17 +140,17 @@ class VR extends Plugin {
       return this.changeProjection_('NONE');
     } else if (projection === '360') {
 
-      this.movieGeometry = new THREE.SphereBufferGeometry(256, 32, 32);
-      this.movieMaterial = new THREE.MeshBasicMaterial({ map: this.videoTexture, overdraw: true, side: THREE.BackSide });
+      this.movieGeometry = new SphereBufferGeometry(256, 32, 32);
+      this.movieMaterial = new MeshBasicMaterial({ map: this.videoTexture, overdraw: true, side: BackSide });
 
-      this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
+      this.movieScreen = new Mesh(this.movieGeometry, this.movieMaterial);
       this.movieScreen.position.set(position.x, position.y, position.z);
 
       this.movieScreen.scale.x = -1;
       this.movieScreen.quaternion.setFromAxisAngle({x: 0, y: 1, z: 0}, -Math.PI / 2);
       this.scene.add(this.movieScreen);
     } else if (projection === '360_LR' || projection === '360_TB') {
-      let geometry = new THREE.SphereGeometry(256, 32, 32);
+      let geometry = new SphereGeometry(256, 32, 32);
 
       // Left eye view
       let uvs = geometry.faceVertexUvs[ 0 ];
@@ -151,17 +167,17 @@ class VR extends Plugin {
       }
       geometry.scale(-1, 1, 1);
 
-      this.movieGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
-      this.movieMaterial = new THREE.MeshBasicMaterial({ map: this.videoTexture, overdraw: true, side: THREE.BackSide });
+      this.movieGeometry = new BufferGeometry().fromGeometry(geometry);
+      this.movieMaterial = new MeshBasicMaterial({ map: this.videoTexture, overdraw: true, side: BackSide });
 
-      this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
+      this.movieScreen = new Mesh(this.movieGeometry, this.movieMaterial);
       this.movieScreen.rotation.y = -Math.PI / 2;
       // display in left eye only
       this.movieScreen.layers.set(1);
       this.scene.add(this.movieScreen);
 
       // Right eye view
-      geometry = new THREE.SphereGeometry(256, 32, 32);
+      geometry = new SphereGeometry(256, 32, 32);
 
       uvs = geometry.faceVertexUvs[ 0 ];
 
@@ -177,25 +193,25 @@ class VR extends Plugin {
       }
       geometry.scale(-1, 1, 1);
 
-      this.movieGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
-      this.movieMaterial = new THREE.MeshBasicMaterial({ map: this.videoTexture, overdraw: true, side: THREE.BackSide });
+      this.movieGeometry = new BufferGeometry().fromGeometry(geometry);
+      this.movieMaterial = new MeshBasicMaterial({ map: this.videoTexture, overdraw: true, side: BackSide });
 
-      this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
+      this.movieScreen = new Mesh(this.movieGeometry, this.movieMaterial);
       this.movieScreen.rotation.y = -Math.PI / 2;
       // display in right eye only
       this.movieScreen.layers.set(2);
       this.scene.add(this.movieScreen);
 
     } else if (projection === '360_CUBE') {
-      this.movieGeometry = new THREE.BoxGeometry(256, 256, 256);
-      this.movieMaterial = new THREE.MeshBasicMaterial({ map: this.videoTexture, overdraw: true, side: THREE.BackSide });
+      this.movieGeometry = new BoxGeometry(256, 256, 256);
+      this.movieMaterial = new MeshBasicMaterial({ map: this.videoTexture, overdraw: true, side: BackSide });
 
-      const left = [new THREE.Vector2(0, 0.5), new THREE.Vector2(0.333, 0.5), new THREE.Vector2(0.333, 1), new THREE.Vector2(0, 1)];
-      const right = [new THREE.Vector2(0.333, 0.5), new THREE.Vector2(0.666, 0.5), new THREE.Vector2(0.666, 1), new THREE.Vector2(0.333, 1)];
-      const top = [new THREE.Vector2(0.666, 0.5), new THREE.Vector2(1, 0.5), new THREE.Vector2(1, 1), new THREE.Vector2(0.666, 1)];
-      const bottom = [new THREE.Vector2(0, 0), new THREE.Vector2(0.333, 0), new THREE.Vector2(0.333, 0.5), new THREE.Vector2(0, 0.5)];
-      const front = [new THREE.Vector2(0.333, 0), new THREE.Vector2(0.666, 0), new THREE.Vector2(0.666, 0.5), new THREE.Vector2(0.333, 0.5)];
-      const back = [new THREE.Vector2(0.666, 0), new THREE.Vector2(1, 0), new THREE.Vector2(1, 0.5), new THREE.Vector2(0.666, 0.5)];
+      const left = [new Vector2(0, 0.5), new Vector2(0.333, 0.5), new Vector2(0.333, 1), new Vector2(0, 1)];
+      const right = [new Vector2(0.333, 0.5), new Vector2(0.666, 0.5), new Vector2(0.666, 1), new Vector2(0.333, 1)];
+      const top = [new Vector2(0.666, 0.5), new Vector2(1, 0.5), new Vector2(1, 1), new Vector2(0.666, 1)];
+      const bottom = [new Vector2(0, 0), new Vector2(0.333, 0), new Vector2(0.333, 0.5), new Vector2(0, 0.5)];
+      const front = [new Vector2(0.333, 0), new Vector2(0.666, 0), new Vector2(0.666, 0.5), new Vector2(0.333, 0.5)];
+      const back = [new Vector2(0.666, 0), new Vector2(1, 0), new Vector2(1, 0.5), new Vector2(0.666, 0.5)];
 
       this.movieGeometry.faceVertexUvs[0] = [];
 
@@ -217,7 +233,7 @@ class VR extends Plugin {
       this.movieGeometry.faceVertexUvs[0][10] = [ back[2], back[1], back[3] ];
       this.movieGeometry.faceVertexUvs[0][11] = [ back[1], back[0], back[3] ];
 
-      this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
+      this.movieScreen = new Mesh(this.movieGeometry, this.movieMaterial);
       this.movieScreen.position.set(position.x, position.y, position.z);
       this.movieScreen.rotation.y = -Math.PI;
 
@@ -398,24 +414,24 @@ class VR extends Plugin {
   init() {
     this.reset();
 
-    this.camera = new THREE.PerspectiveCamera(75, this.player_.currentWidth() / this.player_.currentHeight(), 1, 1000);
+    this.camera = new PerspectiveCamera(75, this.player_.currentWidth() / this.player_.currentHeight(), 1, 1000);
     // Store vector representing the direction in which the camera is looking, in world space.
-    this.cameraVector = new THREE.Vector3();
+    this.cameraVector = new Vector3();
 
     if (this.currentProjection_ === '360_LR' || this.currentProjection_ === '360_TB') {
       // Render left eye when not in VR mode
       this.camera.layers.enable(1);
     }
 
-    this.scene = new THREE.Scene();
-    this.videoTexture = new THREE.VideoTexture(this.getVideoEl_());
+    this.scene = new Scene();
+    this.videoTexture = new VideoTexture(this.getVideoEl_());
 
     // shared regardless of wether VideoTexture is used or
     // an image canvas is used
     this.videoTexture.generateMipmaps = false;
-    this.videoTexture.minFilter = THREE.LinearFilter;
-    this.videoTexture.magFilter = THREE.LinearFilter;
-    this.videoTexture.format = THREE.RGBFormat;
+    this.videoTexture.minFilter = LinearFilter;
+    this.videoTexture.magFilter = LinearFilter;
+    this.videoTexture.format = RGBFormat;
 
     this.changeProjection_(this.currentProjection_);
 
@@ -442,7 +458,7 @@ class VR extends Plugin {
     }
 
     this.camera.position.set(0, 0, 0);
-    this.renderer = new THREE.WebGLRenderer({
+    this.renderer = new WebGLRenderer({
       devicePixelRatio: window.devicePixelRatio,
       alpha: false,
       clearColor: 0xffffff,
